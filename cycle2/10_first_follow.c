@@ -101,8 +101,8 @@ void calc_follow(char symbol,char set[]){
 						char temp_first[LENGTH]={'\0'};
 						strcpy(temp_first,firstset[getindex(next_symb)]);
 						set_union(set,temp_first);
+						set_remove(set,'#');
 						if(!is_in_set(temp_first,'#')){
-							set_remove(set,'#');
 							break;
 						}
 						
