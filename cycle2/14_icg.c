@@ -1,59 +1,65 @@
 #include<stdio.h>
-#include<stdlib.h>
 #include<ctype.h>
 #include<string.h>
-#define MAXSIZE 100
 
-char opnd_stack[MAXSIZE][MAXSIZE],optr_stack[MAXSIZE];
-int opnd_top=-1,optr_top=-1,temp_count=0;
+char input[20];
+char optrstack[20],opndstack[20][20];
+int optrtop=-1,opndtop=-1;
+int temp_count=0;
 
 int priority(char op){
         switch(op){
                 case '+':
                 case '-': return 1;
-                case '*':
-                case '/': return 2;
+                case '/':
+                case '*': return 2;
+                default: return 0;
         }
 }
 
-void generate_code(){
-//      printf("A\n");
-        char optr=optr_stack[optr_top--];
-        char opnd2[20],opnd1[20];
-        strcpy(opnd2,opnd_stack[opnd_top--]);
-        strcpy(opnd1,opnd_stack[opnd_top--]);
+void generatecode(){
+        char optr=optrstack[optrtop--];
+        char opnd1[20],opnd2[20];
+
+        strcpy(opnd2,opndstack[opndtop--]);
+        strcpy(opnd1,opndstack[opndtop--]);
 
         printf("t%d = %s %c %s\n",temp_count,opnd1,optr,opnd2);
-        sprintf(opnd_stack[++opnd_top],"t%d",temp_count++);
+        sprintf(opndstack[++opndtop],"t%d",temp_count++);
 }
 
 void main(){
-        char expn[100];
-        int i;
+        printf("Enter an arithmetic expression: ");
+        scanf(" %[^\n]",input);
 
-        printf("ENter an expression: ");
-        scanf(" %[^\n]",expn);
-
-        i=0;
-        while(expn[i]!='\0'){
-                if(isalnum(expn[i])){
-                        char opnd[100];
+        int i=0;
+        while(input[i]!='\0'){
+                if(isalnum(input[i])){
+                        char opnd[20];
                         int j=0;
-                        while(isalnum(expn[i])){
-                                opnd[j++]=expn[i++];
+                        while(isalnum(input[i])){
+                                opnd[j++]=input[i++];
                         }
                         opnd[j]='\0';
-                        strcpy(opnd_stack[++opnd_top],opnd);
-                }else if(strchr("+-*/",expn[i])){
-                        while(optr_top>-1 && priority(optr_stack[optr_top])>=priority(expn[i])){
-                                generate_code();
+                        strcpy(opndstack[++opndtop],opnd);
+                }else if(strchr("+-*/",input[i])){
+                        while(priority(optrstack[optrtop])>=priority(input[i])){
+                                generatecode();
                         }
-                        optr_stack[++optr_top]=expn[i++];
+                        optrstack[++optrtop]=input[i++];
+                }else if(input[i]=='('){
+                        optrstack[++optrtop]=input[i++];
+                }else if(input[i]==')'){
+                        while(optrstack[optrtop]!='('){
+                                generatecode();
+                        }
+                        optrtop--;
+                        i++;
                 }else{
                         i++;
                 }
         }
-        while(optr_top>-1 && opnd_top>-1){
-                generate_code();
+        while(optrtop!=-1 && opndtop!=-1){
+                generatecode();
         }
 }
