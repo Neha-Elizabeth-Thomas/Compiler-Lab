@@ -80,43 +80,39 @@ void calc_first(char symbol,char set[]){
 	}
 }
 
-void calc_follow(char symbol,char set[]){
-	int k;
-	if(symbol==startSymb){
-		set_add(set,'$');
-	}
 
-	for(int i=0 ; i<num_of_productions ; i++){
-		for(int j=2 ; productions[i][j]!='\0' ; j++){
-			if(productions[i][j]==symbol){
-				for(k=j+1 ; productions[i][k]!='\0' ; k++){
-					char next_symb=productions[i][k];
-					if(next_symb=='\0')
-						break;
-					if(!isupper(next_symb)){
-						set_remove(set,'#');
-						set_add(set,next_symb);
-						break;
-					}else{
-						char temp_first[LENGTH]={'\0'};
-						strcpy(temp_first,firstset[getindex(next_symb)]);
-						set_union(set,temp_first);
-						set_remove(set,'#');
-						if(!is_in_set(temp_first,'#')){
-							break;
-						}
-						
-					}
-				}
-				if(productions[i][k]=='\0' && productions[i][0]!=symbol){
-					char temp[LENGTH];
-					calc_follow(productions[i][0],temp);
-					set_union(set,temp);
-				}
-			}
-		}
-	}
+void calc_follow(char symb,char set[]){
+        for(int i=0 ; i<num_of_productions ; i++){
+                for(int j=2 ; productions[i][j]!='\0' ; j++){
+                        if(productions[i][j]==symb){
+                                int k;
+                                for(k=j+1 ; productions[i][k]!='\0' ; k++){
+                                        char curr_symb=productions[i][k];
+                                        if(!isupper(curr_symb)){
+                                                set_add(set,curr_symb);
+                                                break;
+                                        }else{
+                                                char temp_follow[LENGTH]={'\0'};
+                                                strcpy(temp_follow,firstset[getindex(curr_symb)]);
+                                                if(!inset(temp_follow,'#')){
+                                                        set_union(set,temp_follow);
+                                                        break;
+                                                }else{
+                                                        set_remove(temp_follow,'#');
+                                                        set_union(set,temp_follow);
+                                                }
+                                        }
+                                }
+                                if(productions[i][k]=='\0' && productions[i][0]!=symb){
+                                        char temp_follow[LENGTH];
+                                        calc_follow(productions[i][0],temp_follow);
+                                        set_union(set,temp_follow);
+                                }
+                        }
+                }
+        }
 }
+
 
 void main(){
 	printf("How many productions are there? ");
